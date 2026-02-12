@@ -36,13 +36,13 @@ python geohood.py --address="4849 Sheboygan Ave, Madison, WI"
 When you run the script, it creates:
 
 output/
-│
-├── properties.csv          # All property listings with prices, addresses, photo paths
-├── coordinates.csv         # Geographic coordinates for each property
-└── property_photos/        # Folder containing downloaded property images
-    ├── 123_main_st.jpg
-    ├── 456_oak_ave.jpg
-    └── ...
+<br>│
+<br>├── properties.csv          # All property listings with prices, addresses, photo paths
+<br>├── coordinates.csv         # Geographic coordinates for each property
+<br>└── property_photos/        # Folder containing downloaded property images
+    <br>├── 123_main_st.jpg
+    <br>├── 456_oak_ave.jpg
+    <br>└── ...
     
 ### Output Format
 properties.csv
