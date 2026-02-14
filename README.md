@@ -37,20 +37,18 @@ When you run the script, it creates:
 
 output/
 <br>│
-<br>├── properties.csv          # All property listings with prices, addresses, photo paths
-<br>├── coordinates.csv         # Geographic coordinates for each property
-<br>└── property_photos/        # Folder containing downloaded property images
+<br>├── f"properties_{zipcode}.csv"          # All property listings with prices, addresses, photo paths
+<br>└── f"houses_{zipcode}"/        # Folder containing downloaded property images
     <br>├── 123_main_st.jpg
     <br>├── 456_oak_ave.jpg
     <br>└── ...
     
 ### Output Format
-properties.csv
-Price	Address	ZIP	Photo_Path
-$450,000	123 Main St	53705	property_photos/123_main_st.jpg
-coordinates.csv
-Address	Latitude	Longitude
-123 Main St	43.0731	-89.4012
+properties_{zipcode}.csv (single file containing all fields)
+Price	Address	ZIP	Latitude	Longitude	Photo_Path
+$450,000	123 Main St	53705	43.0731	-89.4012	houses_{zipcode}/123_main_st.jpg
+
+> **Note:** coordinates are included as columns in the same CSV.
 
 ### Example
 python main.py --address="4849 Sheboygan Ave, Madison, WI"
@@ -64,3 +62,10 @@ Scrape all Redfin listings in 53705
 Generate CSV files with property details and coordinates
 
 Download property photos to the property_photos folder
+
+### Temporary
+Submit the code (.py) and CSV files with house information.
+Checkpoint date: you need to finish 75% of functions.
+
+Task 1:
+- Prof. Robert Roth plans to create a map to visualize the houses nearby a specific place. He hopes you can help him to create a web scraper for Redfin house information collection (follow the OOP paradigm). The input might be an address. He expects to have a csv file which contains information for all the houses located in the same zip code. For each house, house price, address, coordinates (a CSV file), and at least one photo should be collected and saved.
