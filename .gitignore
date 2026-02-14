@@ -1,0 +1,9 @@
+# Test and debug files
+.test_redfin.py
+sample_redfin.html
+*.pyc
+__pycache__/
+.venv/
+*.csv
+houses_*/
+*.json
