@@ -175,4 +175,8 @@ if __name__ == '__main__':
     web_scraper = WebScraper()  # Create a webscraper instance
     zipcode, coordinate = web_scraper.geocoding(args.address)  # Send the address to the webscraper to get the zipcode
     web_scraper.get_houses(zipcode)  # Collect a set of houses and their information based on zip code
-    web_scraper.save_houses()  # Save house information into files
+    web_scraper.save_houses(zipcode)  # Save house information into files
+
+# we got some issues at this stage:
+# 1. The geocoding function is working well, but the final output csv is empty.
+# 2. The intended picture path is not created, and no images are saved.
