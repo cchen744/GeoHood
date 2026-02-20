@@ -6,6 +6,7 @@ import argparse
 import requests
 import numpy as np
 import pandas as pd
+import os
 from bs4 import BeautifulSoup
 import geopy
 from selenium import webdriver
@@ -17,8 +18,9 @@ from selenium.webdriver.support import expected_conditions as EC
 API_KEY = 'AIzaSyBuNHyspdHBMXTf4usN-WXnZ3RxcK_RarU' # input your geocoding api key
 
 class WebScraper():
-    def __init__(self):
-        pass
+    def __init__(self,mode='offline'):
+        self.mode = mode
+        self.house_collection = []
 
     # Input the address
     def geocoding(self, address):
@@ -43,29 +45,62 @@ class WebScraper():
         # Input the zipcode of the target region
 
     def get_houses(self, zipcode):
-        # Use Selenium to render JavaScript and get dynamically loaded listings
-        print(f"[INFO] Opening Redfin page for zipcode {zipcode}...")
-        
-        driver = webdriver.Chrome()
-        try:
-            url = f"https://www.redfin.com/zipcode/{zipcode}"
-            driver.get(url)
-            
-            # Wait for house listings to load (max 10 seconds)
-            # Look for a listing element or container - adjust the selector as needed
-            print("[INFO] Waiting for listings to load...")
-            wait = WebDriverWait(driver, 10)
-            # Try to wait for a common listing container to appear
+
+        all_html_contents = []
+        self.house_collection = []
+
+        if self.mode == 'online':        
             try:
-                wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "[data-testid='home-card']")))
-            except:
-                print("[WARNING] Timeout waiting for listings - page may have loaded anyway")
             
-            # Get the rendered HTML
-            rendered_html = driver.page_source
-            soup = BeautifulSoup(rendered_html, 'html.parser')
-            
-            self.house_collection = []
+                # Use Selenium to render JavaScript and get dynamically loaded listings
+                print(f"[INFO] Opening Redfin page for zipcode {zipcode}...")
+        
+                driver = webdriver.Chrome()
+                url = f"https://www.redfin.com/zipcode/{zipcode}"
+                driver.get(url)
+                
+                # Wait for house listings to load (max 10 seconds)
+                # Look for a listing element or container - adjust the selector as needed
+                print("[INFO] Waiting for listings to load...")
+                wait = WebDriverWait(driver, 10)
+
+                # Try to wait for a common listing container to appear
+                try:
+                    wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "[data-testid='home-card']")))
+                except:
+                    print("[WARNING] Timeout waiting for listings - page may have loaded anyway")
+                
+                # Get the rendered HTML after JavaScript has executed
+                rendered_html = driver.page_source
+                all_html_contents.append(rendered_html)
+
+            finally:
+                    driver.quit()
+                    print("[INFO] Browser closed")
+                
+        elif self.mode == 'offline':
+            # read meta data to get coordinate information for the target region, and then use the coordinate to find the corresponding html file in the local folder
+            meta = pd.read_csv('offline_pack/data/meta.csv')   
+
+            # find all related html files
+            html_files = []
+            for html in os.listdir('offline_pack/data/raw_html'):
+                if html.startswith(zipcode):
+                    if html.startswith(zipcode):
+                        html_files.append(os.path.join('offline_pack/data/raw_html', html))
+
+            # process each html file and extract the rendered html content
+            for html_file in html_files:
+                with open(html_file, 'r', encoding='utf-8') as f:
+                    rendered_html = f.read()
+                    all_html_contents.append(rendered_html)
+        else:
+            raise ValueError(f"Invalid mode: {self.mode}. Use 'online' or 'offline'.")
+        
+        print(f"[INFO] Processing {len(all_html_contents)} HTML contents for zipcode {zipcode}...")
+
+        for html_content in all_html_contents:
+            soup = BeautifulSoup(html_content, 'html.parser')
             
             # Find all home cards (adjust selector if Redfin uses different classes)
             listing_containers = soup.find_all('div', {'data-testid': 'home-card'})
@@ -116,10 +151,7 @@ class WebScraper():
                     print(f"[SKIP] Could not parse listing {i}: {e}")
                     continue
         
-        finally:
-            driver.quit()
-            print("[INFO] Browser closed")
-
+        print(f"[INFO] Total houses collected for zipcode {zipcode}: {len(self.house_collection)}")
 
     # Save house information to csv and photos to a folder
     def save_houses(self, zipcode):
@@ -129,8 +161,6 @@ class WebScraper():
         for house in self.house_collection:  # Iterate all houses in the house collection
             house.save_file()  # Save house information as file
             house.save_img(path)  # Save house image to the path
-        
-
 
 class House():
     def __init__(self, price, house_address, coordinate, image_url): # information we want to get
@@ -156,7 +186,6 @@ class House():
 
     def save_file(self):
         """Persist this house's info as a small JSON file in the current directory.
-
         The name is derived from the house address so multiple entries don't
         collide (slashes are replaced with underscores).
         """
