@@ -1,0 +1,4 @@
+filename,url,fetched_at_utc,status_code,note
+zipcode_53703_p1.html,https://example.com/redfin/zipcode/53703?page=1,2026-02-17T15:49:24.770979Z,200,fabricated_redfin_like
+zipcode_53703_p2.html,https://example.com/redfin/zipcode/53703?page=2,2026-02-17T15:49:24.771092Z,200,fabricated_redfin_like
+zipcode_53703_p3.html,https://example.com/redfin/zipcode/53703?page=3,2026-02-17T15:49:24.771192Z,200,fabricated_redfin_like
